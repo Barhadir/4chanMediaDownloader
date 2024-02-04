@@ -30,7 +30,7 @@ for ind, a_tag in enumerate(imageLinks):
 if catbox == "y":
   print("Downloading catbox files")
   catboxLinks = pageHTML.find_all("a", {"href": re.compile(".+(files\.catbox\.moe\/)(.+)\.(png|jpg|jpeg|mp4|webm|gif)$")}) #ignore litterbox for now, as it is most likeley expired
-  print(len(catboxLinks)+" catbox media found.")
+  print(str(len(catboxLinks))+" catbox media found.")
 
   for ind, a_tag in enumerate(catboxLinks):
     print(str(ind+1) + " out of " + str(len(catboxLinks)))
