@@ -12,7 +12,7 @@ def fuukaArchiveParser(URL, headers, catbox, domain):
 
   imageLinks = pageHTML.find_all("a", {"class": "thread_image_link"})
 
-  threadID = re.search("\/([a-z0-9]{1,4})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
+  threadID = re.search("\/([a-z0-9]{1,5})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
 
   print(str(len(imageLinks))+" thread media found.")
 

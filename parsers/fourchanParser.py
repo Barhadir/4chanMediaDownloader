@@ -13,7 +13,7 @@ def fourchanParser(URL, headers, catbox):
 
   imageLinks = pageHTML.find_all("a", {"class": "fileThumb"})
 
-  threadID = re.search("\/([a-z0-9]{1,4})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
+  threadID = re.search("\/([a-z0-9]{1,5})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
 
   print(str(len(imageLinks))+" thread media found.")
 
