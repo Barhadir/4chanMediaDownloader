@@ -6,7 +6,7 @@ import requests
 #Download the media behind a given link.
 def mediaDownload(link, headers, threadID):
   filename = link.split("/")[-1]
-  if os.path.isfile("./out/" + filename):
+  if os.path.isfile("./out/thread_"+ threadID + '/' + filename):
     print(filename+' already exists. Skipping.')
   else:
     image = requests.get(link, headers=headers)

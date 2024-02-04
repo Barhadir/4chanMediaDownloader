@@ -13,8 +13,9 @@ headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux ppc64le; rv:75.0) Gecko/201001
 page = requests.get(URL, headers=headers)
 pageHTML = BeautifulSoup(page.content, "html.parser")
 imageLinks = pageHTML.find_all("a", {"class": "thread_image_link"})
-threadID = re.search("[0-9]+\/$", URL).group()
+threadID = re.search("\/(\w)\/", URL).group()[1] + '_' + re.search("[0-9]+\/$", URL).group()
 pathlib.Path('./out/thread_'+threadID).mkdir(exist_ok=True)
+print("downloading to: " + './out/thread_'+threadID )
 
 for a_tag in imageLinks:
   mediaDownload(a_tag["href"], headers, threadID)
