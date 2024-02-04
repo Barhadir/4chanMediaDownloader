@@ -11,7 +11,7 @@ URL = input("Enter archive link: ")
 catbox = input("Want to download catbox files as well?:[y/n] ")
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux ppc64le; rv:75.0) Gecko/20100101 Firefox/75.0'}
 
-threadID = re.search("\/(\w)\/", URL).group()[1] + '_' + re.search("[0-9]+\/$", URL).group()
+threadID = re.search("\/([a-z0-9]{1,4})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
 
 page = requests.get(URL, headers=headers)
 pageHTML = BeautifulSoup(page.content, "html.parser")
