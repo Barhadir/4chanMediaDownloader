@@ -1,25 +1,29 @@
-import os
+import re
+import pathlib
 
 import requests
 from bs4 import BeautifulSoup
+from utils.mediaDownloader import mediaDownload
+
+#TODO: write multiple parsers, archive.moe with redirects, 4chan with api(?)
 
 URL = input("Enter archive link: ")
-page = requests.get(URL)
+catbox = input("Want to download catbox files as well?:[y/n] ")
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux ppc64le; rv:75.0) Gecko/20100101 Firefox/75.0'}
+page = requests.get(URL, headers=headers)
+pageHTML = BeautifulSoup(page.content, "html.parser")
+imageLinks = pageHTML.find_all("a", {"class": "thread_image_link"})
+pathlib.Path('./out').mkdir(exist_ok=True)
 
-soup = BeautifulSoup(page.content, "html.parser")
+for a_tag in imageLinks:
+  mediaDownload(a_tag["href"], headers)
 
-results = soup.find_all("a", {"class": "thread_image_link"})
+if catbox == "y":
+  print("Downloading catbox files")
+  catboxLinks = pageHTML.find_all("a", {"href": re.compile(".+(files\.catbox\.moe\/)(.+)\.(png|jpg|jpeg|mp4|webm|gif)$")}) #ignore litterbox for now, as it is most likeley expired
 
-for a_tag in results:
-    link = a_tag["href"]
-    filename = link.split("/")[-1]
-    if os.path.isfile("./out/" + filename):
-      print(filename+' already exists. Skipping.')
-    else:
-      image = requests.get(link)
-      if image.status_code == 200:
-        with open("./out/" + link.split("/")[-1], 'wb') as f:
-          f.write(image.content)
-        print("Saved: "+ filename)
+  for a_tag in catboxLinks:
+    mediaDownload(a_tag["href"], headers)
 
-#Scrape catbox links ending in png/jpg/jpeg/webm/gif
+
+
