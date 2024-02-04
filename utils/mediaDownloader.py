@@ -15,5 +15,5 @@ def mediaDownload(link, headers, threadID):
       path ="./out/thread_"+ threadID + link.split("/")[-1]
       with open(path, 'wb') as f:
         f.write(image.content)
-      print("Saved: "+ filename)
+      print("Saved: "+ filename + '\n-------------------')
     time.sleep(0.5) #wait to not trigger too many requests at once
