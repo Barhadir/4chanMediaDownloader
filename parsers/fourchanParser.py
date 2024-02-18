@@ -26,3 +26,21 @@ def fourchanParser(URL, headers, catbox):
     mediaDownload("https:"+a_tag["href"], headers, threadID)
 
     #TODO: implement catbox and litterbox(which might exist)
+  if catbox == "y":
+    print("Downloading catbox files")
+    replies = pageHTML.find_all("blockquote", class_='postMessage')
+    catboxLinks = []
+    for reply in replies: 
+      pattern = re.compile("(https\:\/\/(files|litter)\.catbox\.moe\/([\w\d])+\.(png|jpg|jpeg|mp4|webm|gif))")
+      pos = 0
+      while (match := pattern.search(reply.text, pos)) is not None:
+        pos = match.start() + 1
+        print(match[1])
+        catboxLinks.append(match[1])
+    
+    print(str(len(catboxLinks))+" catbox media found.")
+
+    for ind, link in enumerate(catboxLinks):
+      print(str(ind+1) + " out of " + str(len(catboxLinks)))
+      print(link)
+      mediaDownload(link, headers, threadID)
