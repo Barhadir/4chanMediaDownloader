@@ -35,7 +35,6 @@ def fourchanParser(URL, headers, catbox):
       pos = 0
       while (match := pattern.search(reply.text, pos)) is not None:
         pos = match.start() + 1
-        print(match[1])
         catboxLinks.append(match[1])
     
     print(str(len(catboxLinks))+" catbox media found.")

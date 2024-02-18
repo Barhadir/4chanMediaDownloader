@@ -31,4 +31,5 @@ def fuukaArchiveParser(URL, headers, catbox, domain):
 
     for ind, a_tag in enumerate(catboxLinks):
       print(str(ind+1) + " out of " + str(len(catboxLinks)))
+      print(a_tag["href"])
       mediaDownload(a_tag["href"], headers, threadID)
