@@ -4,8 +4,9 @@ import pathlib
 import requests
 from bs4 import BeautifulSoup
 from utils.mediaDownloader import mediaDownload
+from utils.hydrusImporter import hydrusImport
 
-def fourchanParser(URL, headers, catbox):
+def fourchanParser(URL, headers, catbox, hydrus):
   print('Scraping 4chan.')
 
   page = requests.get(URL, headers=headers)
@@ -23,10 +24,11 @@ def fourchanParser(URL, headers, catbox):
 
   for ind, a_tag in enumerate(imageLinks):
     print(str(ind+1) + " out of " + str(len(imageLinks)))
-    mediaDownload("https:"+a_tag["href"], headers, threadID)
+    # mediaDownload("https:"+a_tag["href"], headers, threadID)
+    hydrusImport(URL, "https:"+a_tag["href"], threadID)
 
     #TODO: implement catbox and litterbox(which might exist)
-  if catbox == "y":
+  if catbox:
     print("Downloading catbox files")
     replies = pageHTML.find_all("blockquote", class_='postMessage')
     catboxLinks = []
@@ -42,4 +44,5 @@ def fourchanParser(URL, headers, catbox):
     for ind, link in enumerate(catboxLinks):
       print(str(ind+1) + " out of " + str(len(catboxLinks)))
       print(link)
-      mediaDownload(link, headers, threadID)
+      if hydrus: 
+        hydrusImport(URL, link, threadID)
