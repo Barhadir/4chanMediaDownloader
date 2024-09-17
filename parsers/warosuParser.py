@@ -42,12 +42,15 @@ def warosuParser(URL, headers):
                     postbody = td
                     break
 
-          media.links.append(URL + "#p" +media.postID)
+          media.links.append(str(URL))
+          if (len(media.postID) > 0):
+               media.links.append(str(URL) + str("#p") + str(media.postID))
           
           bodySoup = BeautifulSoup(str(postbody), "html.parser")
           posttxt = ""
-          if bodySoup.find("blockquote") is not None:
-               posttxt = bodySoup.find("blockquote").text
+          if bodySoup.find("p") is not None:
+               posttxt = str(bodySoup.find("p").getText())
+               media.notes["post text"] = posttxt
           
           catboxLinks = []
           pos = 0

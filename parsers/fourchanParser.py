@@ -76,4 +76,3 @@ def fourchanParser(URL, headers):
       media.links.append(relMediaLink)
 
       hydrusImport(media)
-      time.sleep(0.2)
