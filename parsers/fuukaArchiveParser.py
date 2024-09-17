@@ -12,7 +12,7 @@ def fuukaArchiveParser(URL, headers, catbox, domain):
 
   imageLinks = pageHTML.find_all("a", {"class": "thread_image_link"})
 
-  threadID = re.search("\/([a-z0-9]{1,5})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
+  threadID = re.search(r"\/([a-z0-9]{1,5})\/", URL).group().strip('/') + '_' + re.search(r"[0-9]+\/$", URL).group()
 
   print(str(len(imageLinks))+" thread media found.")
 
@@ -22,14 +22,14 @@ def fuukaArchiveParser(URL, headers, catbox, domain):
 
   for ind, a_tag in enumerate(imageLinks):
     print(str(ind+1) + " out of " + str(len(imageLinks)))
-    mediaDownload(a_tag["href"], headers, threadID)
+    #mediaDownload(a_tag["href"], headers, threadID)
 
-  if catbox == "y":
-    print("Downloading catbox files")
-    catboxLinks = pageHTML.find_all("a", {"href": re.compile(".+(files\.catbox\.moe\/)(.+)\.(png|jpg|jpeg|mp4|webm|gif)$")}) #ignore litterbox for now, as it is most likeley expired
-    print(str(len(catboxLinks))+" catbox media found.")
-
-    for ind, a_tag in enumerate(catboxLinks):
-      print(str(ind+1) + " out of " + str(len(catboxLinks)))
-      print(a_tag["href"])
-      mediaDownload(a_tag["href"], headers, threadID)
+  #if catbox == "y":
+  #  print("Downloading catbox files")
+  #  catboxLinks = pageHTML.find_all("a", {"href": re.compile(".+(files\.catbox\.moe\/)(.+)\.(png|jpg|jpeg|mp4|webm|gif)$")}) #ignore litterbox for now, as it is most likeley expired
+  #  print(str(len(catboxLinks))+" catbox media found.")
+#
+  #  for ind, a_tag in enumerate(catboxLinks):
+  #    print(str(ind+1) + " out of " + str(len(catboxLinks)))
+  #    print(a_tag["href"])
+  #    mediaDownload(a_tag["href"], headers, threadID)

@@ -1,48 +1,79 @@
 import re
-import pathlib
+
+import json
+import time
 
 import requests
-from bs4 import BeautifulSoup
-from utils.mediaDownloader import mediaDownload
-from utils.hydrusImporter import hydrusImport
+from utils.hydrusImporter import hydrusImport, fchanMedia
 
-def fourchanParser(URL, headers, catbox, hydrus):
+catboxPattern = re.compile(r"(https\:\/\/(files|litter)\.catbox\.moe\/([\w\d])+\.(png|jpg|jpeg|mp4|webm|gif))")
+
+def fourchanParser(URL, headers):
   print('Scraping 4chan.')
+  if URL[-1] == "/":
+    URL = URL[:-1]
 
-  page = requests.get(URL, headers=headers)
-  pageHTML = BeautifulSoup(page.content, "html.parser")
+  URL = URL.split("#")[0]
+  apiURL = URL.replace("boards.4chan","a.4cdn") + ".json"
 
-  imageLinks = pageHTML.find_all("a", {"class": "fileThumb"})
+  print(URL)
 
-  threadID = re.search("\/([a-z0-9]{1,5})\/", URL).group().strip('/') + '_' + re.search("[0-9]+\/$", URL).group()
+  thread = requests.get(apiURL, headers=headers)
+  threadJSON = json.loads(thread.content.decode("utf-8"))
 
-  print(str(len(imageLinks))+" thread media found.")
+  board = re.search(r"\/([a-z0-9]{1,5})\/", URL).group().strip('/')
+  threadID = re.search(r"[0-9]{2,}$", URL).group()
 
-  pathlib.Path('./out/thread_'+threadID).mkdir(exist_ok=True)
-  print("downloading to: " + './out/thread_'+threadID )
+  posts = threadJSON["posts"]
 
+  for post in posts: 
+    media = fchanMedia()
+    media.links = []
 
-  for ind, a_tag in enumerate(imageLinks):
-    print(str(ind+1) + " out of " + str(len(imageLinks)))
-    # mediaDownload("https:"+a_tag["href"], headers, threadID)
-    hydrusImport(URL, "https:"+a_tag["href"], threadID)
+    media.board = board
 
-    #TODO: implement catbox and litterbox(which might exist)
-  if catbox:
-    print("Downloading catbox files")
-    replies = pageHTML.find_all("blockquote", class_='postMessage')
-    catboxLinks = []
-    for reply in replies: 
-      pattern = re.compile("(https\:\/\/(files|litter)\.catbox\.moe\/([\w\d])+\.(png|jpg|jpeg|mp4|webm|gif))")
+    media.threadID = str(threadID)
+    media.postID = str(post["no"])
+
+    media.links.append("https://archived.moe/" + board + "/thread/" + str(threadID))
+
+    if "com" in post:
+      media.notes["post text"]= post["com"].replace("<wbr>", "").replace("\\", "")
+
+      #parse catbox and litterbox
+      catboxLinks = []
       pos = 0
-      while (match := pattern.search(reply.text, pos)) is not None:
+      while (match := catboxPattern.search(post["com"], pos)) is not None:
         pos = match.start() + 1
         catboxLinks.append(match[1])
-    
-    print(str(len(catboxLinks))+" catbox media found.")
+      
+      if len(catboxLinks) > 0:
+        print("Found " + str(len(catboxLinks)) + " catbox links for post " + media.postID)
 
-    for ind, link in enumerate(catboxLinks):
-      print(str(ind+1) + " out of " + str(len(catboxLinks)))
-      print(link)
-      if hydrus: 
-        hydrusImport(URL, link, threadID)
+      for link in catboxLinks:
+        link = link.replace("<wbr>", "")
+        catboxMedia = media
+        try: 
+          catboxMedia.mediaBytes = None
+          
+          catboxMedia.mediaBytes = requests.get(link, headers=headers).content
+
+          catboxMedia.links.append(link)
+          catboxMedia.filename = link.split("/")[-1]
+
+          hydrusImport(catboxMedia)
+        except:
+          print("Couldn't get " + link)
+
+    if "tim" in post:
+      relMedia = str(post["tim"]) + str(post["ext"])
+
+      media.filename = post["filename"] + post["ext"]
+
+      relMediaLink = "https://i.4cdn.org/" + board + "/" + relMedia
+
+      media.mediaBytes = requests.get(relMediaLink, headers=headers).content
+      media.links.append(relMediaLink)
+
+      hydrusImport(media)
+      time.sleep(0.2)
